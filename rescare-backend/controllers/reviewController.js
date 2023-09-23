@@ -2,8 +2,9 @@ const Review = require('../models/review');
 
 exports.createReview = async (req, res) => {
   try {
-    const newReview = await Review.create(req.body);
-    res.status(201).json(newReview);
+    const review = new Review(req.body);
+    await review.save();
+    res.status(201).json(review);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -18,4 +19,29 @@ exports.getAllReviews = async (req, res) => {
   }
 };
 
-// Agrega más métodos para manejar otras operaciones CRUD
+exports.getReviewById = async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.id);
+    res.status(200).json(review);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+exports.updateReview = async (req, res) => {
+  try {
+    const review = await Review.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.status(200).json(review);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+exports.deleteReview = async (req, res) => {
+  try {
+    await Review.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: 'Review deleted successfully' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};

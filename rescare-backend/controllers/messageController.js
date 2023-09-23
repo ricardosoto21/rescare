@@ -2,21 +2,37 @@ const Message = require('../models/message');
 
 exports.createMessage = async (req, res) => {
   try {
-    const newMessage = await Message.create(req.body);
-    res.status(201).json(newMessage);
+    const message = new Message(req.body);
+    await message.save();
+    res.status(201).json(message);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
 
-exports.getMessagesByUser = async (req, res) => {
+exports.getMessagesByConversation = async (req, res) => {
   try {
-    const userId = req.params.userId;
-    const messages = await Message.find({ $or: [{ sender: userId }, { recipient: userId }] }).sort('timestamp');
+    const messages = await Message.find({ conversationId: req.params.conversationId });
     res.status(200).json(messages);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
 
-// Agrega más métodos para manejar otras operaciones si es necesario
+exports.updateMessage = async (req, res) => {
+  try {
+    const message = await Message.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.status(200).json(message);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+exports.deleteMessage = async (req, res) => {
+  try {
+    await Message.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: 'Message deleted successfully' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
